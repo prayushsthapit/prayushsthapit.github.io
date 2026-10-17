@@ -1132,3 +1132,15 @@ button.main-btn {
     grid-template-columns: none;
   }
 }
+
+/* ---------- Mobile: fix oversized bg words + color hero on touch ---------- */
+@media screen and (max-width: 660px) {
+  .main-title h2 .bg-text {
+    font-size: 2.3rem;
+  }
+}
+@media (hover: none) {
+  .header-content .left-header .image img {
+    filter: grayscale(0);
+  }
+}
