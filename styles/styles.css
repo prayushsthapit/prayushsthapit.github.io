@@ -1067,3 +1067,41 @@ button.main-btn {
 .sixtyfive {
   width: 65%;
 }
+
+/* ---------- Mobile: project cards without hover ---------- */
+@media screen and (max-width: 660px) {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+  .portfolios .portfolio-item {
+    cursor: pointer;
+    background-color: var(--color-grey-5);
+    border-radius: 15px;
+    padding-bottom: 1.2rem;
+  }
+  .portfolios .portfolio-item img {
+    height: 220px;
+    border-radius: 15px 15px 0 0;
+  }
+  .portfolios .portfolio-item .hover-items,
+  .portfolio-item:hover .hover-items {
+    position: static;
+    opacity: 1;
+    transform: none;
+    background-color: transparent;
+    padding: 1.2rem 0.5rem 0.5rem;
+  }
+  .portfolios .portfolio-item .hover-items h3 {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+    text-align: center;
+  }
+  .portfolios .portfolio-item .hover-items .project-desc {
+    padding: 0 0.5rem;
+    margin-bottom: 1rem;
+    color: var(--color-grey-2);
+  }
+  .portfolios .portfolio-item .hover-items .icons .icon {
+    margin: 0;
+  }
+}
