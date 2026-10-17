@@ -23,3 +23,55 @@
         email.setCustomValidity("");
     });
 })();
+
+// Submit the contact form in the background so visitors stay on the page
+(function () {
+    var form = document.querySelector('.contact-form');
+    if (!form) return;
+    var successBox = document.querySelector('.form-success');
+    var sendAnother = document.querySelector('.form-success .send-another');
+
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+        var data = {
+            name: form.querySelector('[name="name"]').value,
+            email: form.querySelector('[name="email"]').value,
+            subject: form.querySelector('[name="subject"]').value,
+            message: form.querySelector('[name="message"]').value,
+            _subject: 'New message from your portfolio',
+            _captcha: 'false',
+            _honey: ''
+        };
+        fetch('https://formsubmit.co/ajax/prayushsthapit2@gmail.com', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify(data)
+        })
+        .then(function (response) {
+            if (!response.ok) throw new Error('send failed');
+            return response.json();
+        })
+        .then(function () {
+            form.hidden = true;
+            if (successBox) {
+                successBox.hidden = false;
+                successBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            form.reset();
+        })
+        .catch(function () {
+            alert('Something went wrong sending your message. Please try again.');
+        });
+    });
+
+    if (sendAnother) {
+        sendAnother.addEventListener('click', function () {
+            if (successBox) successBox.hidden = true;
+            form.hidden = false;
+        });
+    }
+})();
