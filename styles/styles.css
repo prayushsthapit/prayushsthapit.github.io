@@ -962,3 +962,22 @@ section {
 }
 
 /*# sourceMappingURL=styles.css.map */
+
+.about-stats .progress-bars .progress-bar .progress-con .progress .troubleshoot {
+  width: 85%;
+}
+.about-stats .progress-bars .progress-bar .progress-con .progress .ossupport {
+  width: 80%;
+}
+.about-stats .progress-bars .progress-bar .progress-con .progress .networking {
+  width: 75%;
+}
+.about-stats .progress-bars .progress-bar .progress-con .progress .hardware {
+  width: 80%;
+}
+.about-stats .progress-bars .progress-bar .progress-con .progress .ticketing {
+  width: 75%;
+}
+.about-stats .progress-bars .progress-bar .progress-con .progress .support {
+  width: 90%;
+}
