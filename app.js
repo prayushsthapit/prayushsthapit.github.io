@@ -75,3 +75,14 @@
         });
     }
 })();
+
+// Make entire portfolio cards clickable (not just the small GitHub icon)
+document.querySelectorAll('.portfolio-item').forEach(function (card) {
+    var link = card.querySelector('.hover-items .icons a');
+    if (!link) return;
+    card.style.cursor = 'pointer';
+    card.addEventListener('click', function (e) {
+        if (e.target.closest('a')) return;
+        window.open(link.href, '_blank');
+    });
+});
