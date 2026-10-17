@@ -15,6 +15,7 @@ A single-page portfolio showcasing IT support expertise, skills, certifications,
 - [Python Automation for IT](https://github.com/prayushsthapit/python-automation-for-it) — scripts for bulk user setup, log parsing, health reports *(planned)*
 - [Home Network Build](https://github.com/prayushsthapit/home-network-build) — segmented home network with VLANs and monitoring *(planned)*
 - [AWS Cloud Labs](https://github.com/prayushsthapit/aws-cloud-labs) — EC2, S3, IAM labs toward AWS Certified Cloud Practitioner *(planned)*
+- [SOC Home Lab](https://github.com/prayushsthapit/soc-home-lab) — home SIEM lab with Wazuh, log analysis, incident response practice *(planned)* — EC2, S3, IAM labs toward AWS Certified Cloud Practitioner *(planned)*
 
 ## Contact
 
