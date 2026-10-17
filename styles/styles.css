@@ -543,20 +543,36 @@ section {
 .contact-content-con .left-contact .contact-info .contact-item {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-}
-.contact-content-con .left-contact .contact-info .contact-item p {
-  margin: 0.3rem 0 !important;
-  padding: 0 !important;
+  gap: 1rem;
+  margin: 1.1rem 0;
 }
 .contact-content-con .left-contact .contact-info .contact-item .icon {
-  display: grid;
-  grid-template-columns: 40px 1fr;
-}
-.contact-content-con .left-contact .contact-info .contact-item .icon i {
   display: flex;
   align-items: center;
-  font-size: 1.3rem;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background-color: var(--color-grey-5);
+}
+.contact-content-con .left-contact .contact-info .contact-item .icon i {
+  font-size: 1.2rem;
+  color: var(--color-secondary);
+}
+.contact-content-con .left-contact .contact-info .contact-item .contact-text span {
+  display: block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--color-grey-2);
+}
+.contact-content-con .left-contact .contact-info .contact-item .contact-text p {
+  margin: 0 !important;
+  padding: 0 !important;
+  font-size: 1rem;
+  color: var(--color-white);
+  overflow-wrap: anywhere;
 }
 .contact-content-con .left-contact .contact-icon {
   display: flex;
@@ -1103,5 +1119,16 @@ button.main-btn {
   }
   .portfolios .portfolio-item .hover-items .icons .icon {
     margin: 0;
+  }
+}
+
+/* ---------- Mobile: keep contact rows in a row ---------- */
+@media screen and (max-width: 660px) {
+  .contact-content-con .left-contact .contact-info .contact-item {
+    flex-direction: row;
+    align-items: center;
+  }
+  .contact-content-con .left-contact .contact-info .contact-item .icon {
+    grid-template-columns: none;
   }
 }
