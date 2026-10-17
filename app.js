@@ -17,11 +17,7 @@
     var email = document.querySelector('.contact-form input[name="email"]');
     if (!email) return;
     email.addEventListener("invalid", function () {
-        if (email.validity.valueMissing) {
-            email.setCustomValidity("Please enter your email address");
-        } else {
-            email.setCustomValidity("Enter a valid email address");
-        }
+        email.setCustomValidity("Enter a valid email address");
     });
     email.addEventListener("input", function () {
         email.setCustomValidity("");
