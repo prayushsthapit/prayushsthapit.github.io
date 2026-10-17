@@ -982,11 +982,33 @@ section {
   width: 90%;
 }
 
-/* Normalize the contact form submit button (was an anchor in the template) */
+/* Contact form submit button matches the input field styling */
 button.main-btn {
-  background: transparent;
   font-family: inherit;
   font-size: inherit;
   cursor: pointer;
+}
+.contact-content-con .submit-btn {
+  display: flex;
+}
+.contact-content-con .submit-btn button.main-btn {
+  background-color: var(--color-grey-5);
+  border: none;
+  border-radius: 30px;
+  padding: 0.8rem 1.1rem;
+  width: 100%;
+  justify-content: center;
   color: var(--color-white);
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+.contact-content-con .submit-btn button.main-btn::before {
+  display: none;
+}
+.contact-content-con .submit-btn button.main-btn:hover {
+  background-color: var(--color-secondary);
+}
+.contact-content-con .submit-btn button.main-btn .btn-icon {
+  background-color: transparent;
+  padding: 0 0 0 1rem;
 }
