@@ -1,6 +1,6 @@
 # Prayush Sthapit — Portfolio Website
 
-Personal portfolio site for **Prayush Sthapit**, IT Support Engineer based in Prince Edward Island, Canada.
+Personal portfolio site for **Prayush Sthapit**, IT Cloud Support Engineer based in Prince Edward Island, Canada.
 
 🌐 **Live site:** https://prayushsthapit.github.io
 
