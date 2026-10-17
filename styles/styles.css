@@ -981,3 +981,12 @@ section {
 .about-stats .progress-bars .progress-bar .progress-con .progress .support {
   width: 90%;
 }
+
+/* Normalize the contact form submit button (was an anchor in the template) */
+button.main-btn {
+  background: transparent;
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+  color: var(--color-white);
+}
