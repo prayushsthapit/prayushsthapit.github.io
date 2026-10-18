@@ -1238,3 +1238,12 @@ button.main-btn {
   margin-top: auto;
   padding-top: 1rem;
 }
+
+/* ---------- Mobile: move theme toggle above bottom nav ---------- */
+@media screen and (max-width: 600px) {
+  .theme-btn {
+    top: auto;
+    bottom: 100px;
+    right: 4%;
+  }
+}
