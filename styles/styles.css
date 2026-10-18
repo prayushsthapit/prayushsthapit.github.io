@@ -1247,3 +1247,24 @@ button.main-btn {
     right: 4%;
   }
 }
+
+/* ---------- Hero particle network canvas ---------- */
+header#home {
+  position: relative;
+}
+#net-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.5;
+  pointer-events: none;
+}
+header#home .header-content {
+  position: relative;
+  z-index: 1;
+}
+@media screen and (max-width: 700px) {
+  #net-bg {
+    display: none;
+  }
+}
