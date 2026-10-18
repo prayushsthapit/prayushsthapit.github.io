@@ -1206,3 +1206,33 @@ button.main-btn {
 .portfolio-item:hover .hover-items {
   display: none;
 }
+
+/* ---------- Project cards: uniform grid layout ---------- */
+.portfolios {
+  grid-auto-rows: 1fr;
+}
+.portfolios .portfolio-item {
+  display: flex;
+  flex-direction: column;
+}
+.portfolios .portfolio-item .portfolio-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-wrap: break-word;
+}
+.portfolios .portfolio-item .portfolio-info h3 {
+  min-height: 3.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-wrap: break-word;
+}
+.portfolios .portfolio-item .portfolio-info .project-desc {
+  overflow-wrap: break-word;
+}
+.portfolios .portfolio-item .portfolio-info .icons {
+  margin-top: auto;
+  padding-top: 1rem;
+}
