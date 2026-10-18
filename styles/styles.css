@@ -1264,3 +1264,13 @@ header#home > *:not(.fx-canvas) {
   position: relative;
   z-index: 1;
 }
+
+/* ---------- PEI location trigger ---------- */
+.pei-trigger {
+  cursor: pointer;
+  border-bottom: 1px dashed var(--color-secondary);
+  transition: color 0.3s ease;
+}
+.pei-trigger:hover {
+  color: var(--color-secondary);
+}
