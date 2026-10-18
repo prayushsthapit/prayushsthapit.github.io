@@ -96,6 +96,7 @@ document.querySelectorAll('.portfolio-item').forEach(function (card) {
   var isMobile = window.innerWidth < 700;
   var peiExcite = 0, peiHover = false;
   var heroScene = null;
+  var PEI_OUTLINE = [[-63.9892,46.3936],[-64.1350,46.4164],[-64.1058,46.4455],[-64.1133,46.5347],[-64.0580,46.5694],[-64.0714,46.6358],[-64.1333,46.5914],[-64.2236,46.6297],[-64.3875,46.6208],[-64.4167,46.6811],[-64.2269,46.9061],[-63.9989,47.0617],[-63.9675,46.8917],[-64.0917,46.7786],[-64.0675,46.7492],[-63.9747,46.7425],[-63.9808,46.7142],[-63.8822,46.6456],[-63.9042,46.6039],[-63.8325,46.6172],[-63.8333,46.5775],[-63.9375,46.4766],[-63.8317,46.5164],[-63.8117,46.4953],[-63.8408,46.4644],[-63.7094,46.4375],[-63.7003,46.4664],[-63.7400,46.4961],[-63.7005,46.5155],[-63.7233,46.5436],[-63.6472,46.5672],[-63.4908,46.5247],[-63.4969,46.4883],[-63.4547,46.4617],[-63.4225,46.4958],[-63.4575,46.5100],[-63.3203,46.4928],[-63.2389,46.3997],[-63.2108,46.4292],[-62.5875,46.4253],[-62.6925,46.4561],[-62.4772,46.4778],[-62.1664,46.4861],[-61.9706,46.4569],[-62.1733,46.3494],[-62.2858,46.3775],[-62.2722,46.3383],[-62.3578,46.3558],[-62.3347,46.3119],[-62.4006,46.3069],[-62.3597,46.2828],[-62.3739,46.2622],[-62.4950,46.2714],[-62.4372,46.2517],[-62.4247,46.2155],[-62.5853,46.2322],[-62.4981,46.1825],[-62.5894,46.2064],[-62.5683,46.1866],[-62.6039,46.1772],[-62.5342,46.1678],[-62.5422,46.1225],[-62.4783,46.1208],[-62.5139,46.1422],[-62.4730,46.1503],[-62.4469,46.0905],[-62.5739,46.0347],[-62.4592,46.0064],[-62.7467,45.9483],[-62.8828,45.9955],[-62.9350,46.0456],[-62.8961,46.0650],[-63.0308,46.0608],[-62.9225,46.0925],[-62.8681,46.1347],[-62.8853,46.1558],[-62.9592,46.1286],[-62.9442,46.1900],[-62.9850,46.1958],[-62.9839,46.1739],[-63.1222,46.2117],[-62.9628,46.3200],[-63.1228,46.2372],[-63.1950,46.2700],[-63.1725,46.2242],[-63.2731,46.1953],[-63.2192,46.1819],[-63.1731,46.2111],[-63.1406,46.1864],[-63.2617,46.1380],[-63.4814,46.2178],[-63.5919,46.2119],[-63.6986,46.2492],[-63.8128,46.3322],[-63.7856,46.3400],[-63.8008,46.3728],[-63.7147,46.3542],[-63.7656,46.3803],[-63.7450,46.3947],[-63.8900,46.3975],[-63.9297,46.4250],[-63.9892,46.3936]];
 
   function themeHex() {
     var c = getComputedStyle(document.body).getPropertyValue('--color-secondary').trim();
@@ -149,12 +150,11 @@ document.querySelectorAll('.portfolio-item').forEach(function (card) {
           tintMats: [mat], shocks: null, peiLocal: null
         };
 
-        // --- textured Earth globe with PEI marker (hero only) ---
+        // --- textured Earth globe with real PEI boundary (hero only) ---
         if (S.isHero) {
           var globeGroup = new THREE.Group();
-          var gr = isMobile ? 2.2 : 3.2;
-          var globeMat = new THREE.MeshBasicMaterial({ color: themeHex(), wireframe: true, transparent: true, opacity: 0.22 });
-          var globeMesh = new THREE.Mesh(new THREE.SphereGeometry(gr, 48, 32), globeMat);
+          var globeMat = new THREE.MeshBasicMaterial({ color: themeHex(), wireframe: true, transparent: true, opacity: 0.25 });
+          var globeMesh = new THREE.Mesh(new THREE.SphereGeometry(1, 48, 32), globeMat);
           globeGroup.add(globeMesh);
           // swap wireframe for the real Earth map once it loads
           new THREE.TextureLoader().load(
@@ -169,58 +169,75 @@ document.querySelectorAll('.portfolio-item').forEach(function (card) {
             undefined,
             function () { /* texture failed: keep wireframe fallback */ }
           );
-          // PEI: 46.4N, 63.3W
+          // PEI anchor: 46.4N, 63.3W (unit sphere)
           var phi = (90 - 46.4) * Math.PI / 180, theta = (-63.3 + 180) * Math.PI / 180;
           var mp = new THREE.Vector3(
-            -gr * Math.sin(phi) * Math.cos(theta),
-            gr * Math.cos(phi),
-            gr * Math.sin(phi) * Math.sin(theta)
+            -Math.sin(phi) * Math.cos(theta),
+            Math.cos(phi),
+            Math.sin(phi) * Math.sin(theta)
           );
           S.peiLocal = mp;
+          // real PEI boundary drawn on the globe surface
+          var outlineMat = new THREE.LineBasicMaterial({ color: themeHex(), transparent: true, opacity: 0.55 });
+          var outlinePts = PEI_OUTLINE.map(function (ll) {
+            var ph = (90 - ll[1]) * Math.PI / 180, th = (ll[0] + 180) * Math.PI / 180;
+            return new THREE.Vector3(
+              -1.012 * Math.sin(ph) * Math.cos(th),
+              1.012 * Math.cos(ph),
+              1.012 * Math.sin(ph) * Math.sin(th)
+            );
+          });
+          globeGroup.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(outlinePts), outlineMat));
+          // steady location dot
           var markerMat = new THREE.MeshBasicMaterial({ color: themeHex() });
-          var marker = new THREE.Mesh(new THREE.SphereGeometry(0.14, 14, 14), markerMat);
-          marker.position.copy(mp);
+          var marker = new THREE.Mesh(new THREE.SphereGeometry(0.045, 14, 14), markerMat);
+          marker.position.copy(mp).multiplyScalar(1.012);
           globeGroup.add(marker);
-          var ringMat = new THREE.MeshBasicMaterial({ color: themeHex(), transparent: true, opacity: 0.6, side: THREE.DoubleSide });
-          var ring = new THREE.Mesh(new THREE.RingGeometry(0.18, 0.23, 32), ringMat);
-          ring.position.copy(mp);
-          ring.lookAt(mp.clone().multiplyScalar(2));
-          globeGroup.add(ring);
+          // shockwave rings fired on flare
           var shocks = [];
           for (var sh_i = 0; sh_i < 3; sh_i++) {
             var shMat = new THREE.MeshBasicMaterial({ color: themeHex(), transparent: true, opacity: 0, side: THREE.DoubleSide });
-            var shRing = new THREE.Mesh(new THREE.RingGeometry(0.18, 0.24, 32), shMat);
-            shRing.position.copy(mp);
+            var shRing = new THREE.Mesh(new THREE.RingGeometry(0.05, 0.065, 32), shMat);
+            shRing.position.copy(mp).multiplyScalar(1.02);
             shRing.lookAt(mp.clone().multiplyScalar(2));
             globeGroup.add(shRing);
             shocks.push({ mesh: shRing, mat: shMat, life: 2 });
             S.tintMats.push(shMat);
           }
-          // floating "PEI" label, fades in while excited
+          // floating "PRINCE EDWARD ISLAND" label, fades in while excited
           var labelCanvas = document.createElement('canvas');
-          labelCanvas.width = 256; labelCanvas.height = 128;
+          labelCanvas.width = 512; labelCanvas.height = 128;
           var lg = labelCanvas.getContext('2d');
           lg.textAlign = 'center'; lg.textBaseline = 'middle';
-          lg.shadowColor = 'rgba(0,0,0,0.9)'; lg.shadowBlur = 10;
+          lg.shadowColor = 'rgba(0,0,0,0.9)'; lg.shadowBlur = 12;
           lg.fillStyle = '#ffffff';
-          lg.font = 'bold 52px Arial, sans-serif';
-          lg.fillText('PEI', 128, 44);
-          lg.font = '28px Arial, sans-serif';
+          lg.font = 'bold 36px Arial, sans-serif';
+          lg.fillText('PRINCE EDWARD ISLAND', 256, 46);
+          lg.font = '26px Arial, sans-serif';
           lg.fillStyle = themeHex();
-          lg.fillText('CANADA', 128, 92);
+          lg.fillText('CANADA', 256, 94);
           var labelTex = new THREE.CanvasTexture(labelCanvas);
           labelTex.colorSpace = THREE.SRGBColorSpace;
           var labelMat = new THREE.SpriteMaterial({ map: labelTex, transparent: true, opacity: 0, depthTest: false });
           var label = new THREE.Sprite(labelMat);
-          label.scale.set(1.7, 0.85, 1);
-          label.position.copy(mp).multiplyScalar(1.45);
+          label.scale.set(1.6, 0.4, 1);
+          label.position.copy(mp).multiplyScalar(1.7);
           globeGroup.add(label);
-          globeGroup.position.set(0, 0.4, -2.5);
           scene.add(globeGroup);
-          S.globe = globeGroup; S.marker = marker; S.ring = ring;
-          S.ringMat = ringMat; S.shocks = shocks;
+          S.globe = globeGroup; S.marker = marker;
+          S.outlineMat = outlineMat; S.shocks = shocks;
           S.labelMat = labelMat;
-          S.tintMats.push(markerMat, ringMat);
+          S.tintMats.push(globeMat, markerMat, outlineMat);
+          // responsive corner placement: fully in frame, top-right
+          S.placeGlobe = function () {
+            var dist = 9 - (-2.5);
+            var halfH = Math.tan(camera.fov * Math.PI / 360) * dist;
+            var halfW = halfH * camera.aspect;
+            var r = Math.min(isMobile ? 1.35 : 1.9, halfH * 0.30);
+            globeGroup.scale.setScalar(r);
+            globeGroup.position.set(halfW * 0.60, halfH * 0.52, -2.5);
+          };
+          S.placeGlobe();
           heroScene = S;
         }
 
@@ -251,6 +268,7 @@ document.querySelectorAll('.portfolio-item').forEach(function (card) {
           renderer.setSize(w, h, false);
           camera.aspect = w / h;
           camera.updateProjectionMatrix();
+          if (S.placeGlobe) S.placeGlobe();
         };
 
         if ('IntersectionObserver' in window) {
@@ -347,22 +365,15 @@ document.querySelectorAll('.portfolio-item').forEach(function (card) {
             } else {
               S.globe.rotation.y += dt * 0.06;
             }
-            var pt = now * 0.003;
-            var spd = 1.6 + peiExcite * 3.2;
-            var amp = 1 + peiExcite * 0.9;
-            var puls = Math.abs(Math.sin(pt * spd));
-            var rs = (1 + 0.45 * puls) * amp;
-            S.ring.scale.set(rs, rs, 1);
-            S.ringMat.opacity = Math.max(0.12, 0.6 * puls);
-            var ms = 1 + peiExcite * 0.9;
-            S.marker.scale.set(ms, ms, ms);
+            var outlineTarget = (peiHover || peiExcite > 0.3) ? 1 : 0.55;
+            S.outlineMat.opacity += (outlineTarget - S.outlineMat.opacity) * Math.min(1, dt * 5);
             var labelTarget = peiExcite > 0.25 ? 0.95 : 0;
             S.labelMat.opacity += (labelTarget - S.labelMat.opacity) * Math.min(1, dt * 6);
             S.shocks.forEach(function (sh) {
               if (sh.life < 0) { sh.life += dt; return; }
               if (sh.life >= 1) { sh.mat.opacity = 0; return; }
               sh.life += dt * 0.85;
-              var sc = 1 + sh.life * 7;
+              var sc = 1 + sh.life * 9;
               sh.mesh.scale.set(sc, sc, 1);
               sh.mat.opacity = 0.8 * Math.max(0, 1 - sh.life);
             });
