@@ -227,51 +227,9 @@ document.querySelectorAll('.portfolio-item').forEach(function (card) {
             shocks.push({ mesh: shRing, mat: shMat, life: 2 });
             S.tintMats.push(shMat);
           }
-          // floating "PRINCE EDWARD ISLAND" label, fades in while excited.
-          // Dark pill backing keeps it readable in dark AND light mode.
-          var labelCanvas = document.createElement('canvas');
-          labelCanvas.width = 512; labelCanvas.height = 128;
-          var labelTex = new THREE.CanvasTexture(labelCanvas);
-          labelTex.colorSpace = THREE.SRGBColorSpace;
-          function drawLabel(accent) {
-            var lg = labelCanvas.getContext('2d');
-            lg.clearRect(0, 0, 512, 128);
-            lg.fillStyle = 'rgba(8,12,18,0.80)';
-            lg.beginPath();
-            var x = 6, y = 6, w = 500, h = 116, r = 26;
-            lg.moveTo(x + r, y);
-            lg.arcTo(x + w, y, x + w, y + h, r);
-            lg.arcTo(x + w, y + h, x, y + h, r);
-            lg.arcTo(x, y + h, x, y, r);
-            lg.arcTo(x, y, x + w, y, r);
-            lg.closePath();
-            lg.fill();
-            lg.strokeStyle = accent;
-            lg.lineWidth = 3;
-            lg.globalAlpha = 0.9;
-            lg.stroke();
-            lg.globalAlpha = 1;
-            lg.textAlign = 'center';
-            lg.textBaseline = 'middle';
-            lg.fillStyle = '#ffffff';
-            lg.font = 'bold 34px Arial, sans-serif';
-            lg.fillText('PRINCE EDWARD ISLAND', 256, 52);
-            lg.font = '24px Arial, sans-serif';
-            lg.fillStyle = accent;
-            lg.fillText('C A N A D A', 256, 96);
-            labelTex.needsUpdate = true;
-          }
-          drawLabel(themeHex());
-          S.redrawLabel = drawLabel;
-          var labelMat = new THREE.SpriteMaterial({ map: labelTex, transparent: true, opacity: 0, depthTest: false });
-          var label = new THREE.Sprite(labelMat);
-          label.scale.set(1.6, 0.4, 1);
-          label.position.copy(mp).multiplyScalar(1.7);
-          globeGroup.add(label);
           scene.add(globeGroup);
           S.globe = globeGroup; S.marker = marker;
           S.outlineMat = outlineMat; S.shocks = shocks;
-          S.labelMat = labelMat;
           S.tintMats.push(globeMat, markerMat, outlineMat);
           // responsive corner placement: fully in frame, top-right
           S.placeGlobe = function () {
@@ -342,11 +300,10 @@ document.querySelectorAll('.portfolio-item').forEach(function (card) {
         if (mode === 'popup') return;
         var hoverT;
         el.addEventListener('pointerenter', function () {
-          peiHover = true; flarePEI();
           clearTimeout(hoverT);
           hoverT = setTimeout(function () { if (window.openPeiPopup) window.openPeiPopup(); }, 400);
         });
-        el.addEventListener('pointerleave', function () { peiHover = false; clearTimeout(hoverT); });
+        el.addEventListener('pointerleave', function () { clearTimeout(hoverT); });
         el.addEventListener('click', function () {
           var homeSection = document.getElementById('home');
           var homeBtn = document.querySelector('.control[data-id="home"]');
@@ -357,7 +314,6 @@ document.querySelectorAll('.portfolio-item').forEach(function (card) {
           } else {
             flarePEI();
           }
-          if (window.openPeiPopup) window.openPeiPopup();
         });
       });
 
@@ -367,7 +323,6 @@ document.querySelectorAll('.portfolio-item').forEach(function (card) {
           var c = themeHex();
           scenes.forEach(function (S) {
             S.tintMats.forEach(function (m) { m.color.set(c); });
-            if (S.redrawLabel) S.redrawLabel(c);
           });
         }, 60);
       });
@@ -427,8 +382,6 @@ document.querySelectorAll('.portfolio-item').forEach(function (card) {
                 A.pulse.position.copy(A.curve.getPoint(A.t));
               }
             }
-            var labelTarget = peiExcite > 0.25 ? 0.95 : 0;
-            S.labelMat.opacity += (labelTarget - S.labelMat.opacity) * Math.min(1, dt * 6);
             S.shocks.forEach(function (sh) {
               if (sh.life < 0) { sh.life += dt; return; }
               if (sh.life >= 1) { sh.mat.opacity = 0; return; }
