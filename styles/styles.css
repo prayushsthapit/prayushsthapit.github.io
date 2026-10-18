@@ -789,7 +789,7 @@ section {
 
   .portfolios {
     grid-template-columns: repeat(1, 1fr);
-    padding-bottom: 6rem;
+    padding-bottom: 3rem;
     margin-top: 1rem;
   }
 
@@ -1553,4 +1553,18 @@ header#home .fx-canvas {
   background: var(--color-secondary);
   border-color: var(--color-secondary);
   color: #fff;
+}
+
+/* ---------- Spacing fixes ---------- */
+@media screen and (min-width: 971px) {
+  /* breathing room below the desktop Download CV button */
+  .header-content .right-header .btn-con {
+    margin-bottom: 2.5rem;
+  }
+}
+@media screen and (max-width: 600px) {
+  /* trim dead space below mobile content */
+  .about-container {
+    padding-bottom: 2.5rem;
+  }
 }
