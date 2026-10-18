@@ -438,14 +438,8 @@ document.querySelectorAll('.portfolio-item').forEach(function (card) {
     if (e.key === 'Escape') close();
   });
 
-  var t;
   document.querySelectorAll('.pei-trigger[data-pei="popup"]').forEach(function (el) {
-    el.addEventListener('pointerenter', function () {
-      clearTimeout(t);
-      t = setTimeout(open, 350);
-    });
     el.addEventListener('click', function () {
-      clearTimeout(t);
       open();
     });
   });
