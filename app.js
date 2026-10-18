@@ -158,7 +158,7 @@ document.querySelectorAll('.portfolio-item').forEach(function (card) {
           globeGroup.add(globeMesh);
           // swap wireframe for the real Earth map once it loads
           new THREE.TextureLoader().load(
-            'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/textures/planets/earth_atmos_2048.jpg',
+            'https://cdn.jsdelivr.net/gh/mrdoob/three.js@r160/examples/textures/planets/earth_atmos_2048.jpg',
             function (tex) {
               tex.colorSpace = THREE.SRGBColorSpace;
               tex.anisotropy = 4;
