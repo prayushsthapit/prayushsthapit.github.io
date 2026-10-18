@@ -1274,3 +1274,8 @@ header#home > *:not(.fx-canvas) {
 .pei-trigger:hover {
   color: var(--color-secondary);
 }
+
+/* ---------- About stats: keep boxes at natural height ---------- */
+.about-container .right-about {
+  align-content: start;
+}
