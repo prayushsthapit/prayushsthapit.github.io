@@ -153,12 +153,12 @@ document.querySelectorAll('.portfolio-item').forEach(function (card) {
         // --- network globe with real PEI boundary (hero only) ---
         if (S.isHero) {
           var globeGroup = new THREE.Group();
-          var globeMat = new THREE.MeshBasicMaterial({ color: themeHex(), wireframe: true, transparent: true, opacity: 0.35 });
+          var globeMat = new THREE.MeshBasicMaterial({ color: themeHex(), wireframe: true, transparent: true, opacity: 0.5 });
           globeGroup.add(new THREE.Mesh(new THREE.SphereGeometry(1, 40, 28), globeMat));
           // network nodes + data arcs travelling across the surface
           var nodeMat = new THREE.MeshBasicMaterial({ color: themeHex() });
-          var nodeGeo = new THREE.SphereGeometry(0.022, 8, 8);
-          var arcMat = new THREE.LineBasicMaterial({ color: themeHex(), transparent: true, opacity: 0.45 });
+          var nodeGeo = new THREE.SphereGeometry(0.028, 8, 8);
+          var arcMat = new THREE.LineBasicMaterial({ color: themeHex(), transparent: true, opacity: 0.65 });
           var pulseMat = new THREE.MeshBasicMaterial({ color: themeHex() });
           var pulseGeo = new THREE.SphereGeometry(0.02, 8, 8);
           var nodes = [];
@@ -278,7 +278,7 @@ document.querySelectorAll('.portfolio-item').forEach(function (card) {
             var dist = 9 - (-2.5);
             var halfH = Math.tan(camera.fov * Math.PI / 360) * dist;
             var halfW = halfH * camera.aspect;
-            var r = Math.min(isMobile ? 1.35 : 1.9, halfH * 0.30);
+            var r = Math.min(isMobile ? 1.5 : 2.2, halfH * 0.34);
             globeGroup.scale.setScalar(r);
             globeGroup.position.set(halfW * 0.60, halfH * 0.52, -2.5);
           };
@@ -352,6 +352,7 @@ document.querySelectorAll('.portfolio-item').forEach(function (card) {
           } else {
             flarePEI();
           }
+          if (window.openPeiPopup) window.openPeiPopup();
         });
       });
 
@@ -470,6 +471,7 @@ document.querySelectorAll('.portfolio-item').forEach(function (card) {
 
   function open() { overlay.classList.add('open'); }
   function close() { overlay.classList.remove('open'); }
+  window.openPeiPopup = open;
 
   overlay.addEventListener('click', function (e) {
     if (e.target === overlay || e.target.closest('.pei-modal-close')) close();
