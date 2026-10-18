@@ -1425,7 +1425,7 @@ header#home .fx-canvas {
     grid-template-columns: 1fr;
   }
   .about-container .left-about {
-    max-width: 1150px;
+    max-width: 1000px;
     width: 100%;
     margin: 0 auto;
     text-align: center;
@@ -1440,7 +1440,7 @@ header#home .fx-canvas {
   .about-container .right-about {
     grid-template-columns: repeat(4, 1fr);
     padding-top: 2.5rem;
-    max-width: 1150px;
+    max-width: 1000px;
     width: 100%;
     margin: 0 auto;
   }
