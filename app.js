@@ -86,3 +86,102 @@ document.querySelectorAll('.portfolio-item').forEach(function (card) {
         window.open(link.href, '_blank');
     });
 });
+
+// Particle network hero background (lightweight canvas, no dependencies)
+(function () {
+  var canvas = document.getElementById('net-bg');
+  if (!canvas) return;
+  var header = document.getElementById('home');
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (window.innerWidth < 700) return;
+
+  var ctx = canvas.getContext('2d');
+  var W, H, parts = [], raf = null, running = false;
+  var mouse = { x: -9999, y: -9999 };
+  var rgb = [39, 174, 96];
+  var DPR = Math.min(window.devicePixelRatio || 1, 2);
+
+  function readThemeColor() {
+    var c = getComputedStyle(document.body).getPropertyValue('--color-secondary').trim();
+    var m = /^#([0-9a-f]{6})$/i.exec(c);
+    if (m) {
+      var n = parseInt(m[1], 16);
+      rgb = [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+    }
+  }
+
+  function resize() {
+    W = header.clientWidth; H = header.clientHeight;
+    canvas.width = W * DPR; canvas.height = H * DPR;
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    var count = Math.min(85, Math.floor(W * H / 17000));
+    parts = [];
+    for (var i = 0; i < count; i++) {
+      parts.push({
+        x: Math.random() * W, y: Math.random() * H,
+        vx: (Math.random() - 0.5) * 0.35, vy: (Math.random() - 0.5) * 0.35,
+        r: Math.random() * 1.8 + 1
+      });
+    }
+  }
+
+  function link(x1, y1, x2, y2, max, alpha) {
+    var dx = x1 - x2, dy = y1 - y2, d = Math.sqrt(dx * dx + dy * dy);
+    if (d < max && d > 0.01) {
+      var a = (1 - d / max) * alpha;
+      ctx.strokeStyle = 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',' + a.toFixed(3) + ')';
+      ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+    }
+  }
+
+  function step() {
+    ctx.clearRect(0, 0, W, H);
+    var i, j, p;
+    for (i = 0; i < parts.length; i++) {
+      p = parts[i];
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0 || p.x > W) p.vx *= -1;
+      if (p.y < 0 || p.y > H) p.vy *= -1;
+    }
+    ctx.lineWidth = 1;
+    for (i = 0; i < parts.length; i++) {
+      p = parts[i];
+      for (j = i + 1; j < parts.length; j++) link(p.x, p.y, parts[j].x, parts[j].y, 130, 0.32);
+      link(p.x, p.y, mouse.x, mouse.y, 160, 0.45);
+      ctx.fillStyle = 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',0.75)';
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.2832); ctx.fill();
+    }
+    raf = requestAnimationFrame(step);
+  }
+
+  function start() { if (!running) { running = true; raf = requestAnimationFrame(step); } }
+  function stop() { running = false; cancelAnimationFrame(raf); }
+
+  header.addEventListener('mousemove', function (e) {
+    var r = canvas.getBoundingClientRect();
+    mouse.x = e.clientX - r.left; mouse.y = e.clientY - r.top;
+  });
+  header.addEventListener('mouseleave', function () { mouse.x = -9999; mouse.y = -9999; });
+
+  var themeBtn = document.querySelector('.theme-btn');
+  if (themeBtn) themeBtn.addEventListener('click', function () { setTimeout(readThemeColor, 50); });
+
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function (entries) {
+      entries[0].isIntersecting ? start() : stop();
+    }).observe(header);
+  }
+
+  var rt;
+  window.addEventListener('resize', function () {
+    clearTimeout(rt);
+    rt = setTimeout(function () {
+      if (window.innerWidth < 700) { stop(); ctx.clearRect(0, 0, W || 0, H || 0); }
+      else { resize(); start(); }
+    }, 200);
+  });
+
+  readThemeColor();
+  resize();
+  start();
+})();
