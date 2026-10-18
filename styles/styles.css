@@ -1419,12 +1419,11 @@ header#home .fx-canvas {
   opacity: 0.85;
 }
 
-/* ---------- About: text above, stats in one row (desktop landscape) ---------- */
+/* ---------- About: text above, stats in one centered row (desktop landscape) ---------- */
 @media screen and (min-width: 1071px) {
   .about-container {
-    grid-template-columns: 1fr;
-    max-width: 1150px;
-    margin: 0 auto;
+    grid-template-columns: minmax(0, 1150px);
+    justify-content: center;
   }
   .about-container .left-about p {
     font-size: 1.15rem;
