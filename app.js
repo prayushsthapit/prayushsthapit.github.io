@@ -275,12 +275,12 @@ document.querySelectorAll('.portfolio-item').forEach(function (card) {
           S.tintMats.push(globeMat, markerMat, outlineMat);
           // responsive corner placement: fully in frame, top-right
           S.placeGlobe = function () {
-            var dist = 9 - (-2.5);
+            var dist = 9 - (-3);
             var halfH = Math.tan(camera.fov * Math.PI / 360) * dist;
             var halfW = halfH * camera.aspect;
-            var r = Math.min(isMobile ? 1.5 : 2.2, halfH * 0.34);
+            var r = Math.min(isMobile ? 1.8 : 3.0, halfH * 0.44, halfW * 0.44);
             globeGroup.scale.setScalar(r);
-            globeGroup.position.set(halfW * 0.60, halfH * 0.52, -2.5);
+            globeGroup.position.set(0, -halfH * 0.28, -3);
           };
           S.placeGlobe();
           heroScene = S;
@@ -340,8 +340,13 @@ document.querySelectorAll('.portfolio-item').forEach(function (card) {
           return;
         }
         if (mode === 'popup') return;
-        el.addEventListener('pointerenter', function () { peiHover = true; flarePEI(); });
-        el.addEventListener('pointerleave', function () { peiHover = false; });
+        var hoverT;
+        el.addEventListener('pointerenter', function () {
+          peiHover = true; flarePEI();
+          clearTimeout(hoverT);
+          hoverT = setTimeout(function () { if (window.openPeiPopup) window.openPeiPopup(); }, 400);
+        });
+        el.addEventListener('pointerleave', function () { peiHover = false; clearTimeout(hoverT); });
         el.addEventListener('click', function () {
           var homeSection = document.getElementById('home');
           var homeBtn = document.querySelector('.control[data-id="home"]');
