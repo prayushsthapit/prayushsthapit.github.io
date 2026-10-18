@@ -87,14 +87,14 @@ document.querySelectorAll('.portfolio-item').forEach(function (card) {
     });
 });
 
-// Three.js: particle fields + wireframe globe with PEI marker + scroll cameras
+// Three.js: particle fields + textured Earth globe, spins PEI into view on hover
 (function () {
   if (!window.WebGLRenderingContext) return;
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   var canvases = document.querySelectorAll('.fx-canvas');
   if (!canvases.length) return;
   var isMobile = window.innerWidth < 700;
-  var peiExcite = 0;
+  var peiExcite = 0, peiHover = false;
   var heroScene = null;
 
   function themeHex() {
@@ -146,15 +146,29 @@ document.querySelectorAll('.portfolio-item').forEach(function (card) {
           positions: positions, vels: vels, COUNT: COUNT,
           visible: false, mx: 0, my: 0, tx: 0, ty: 0,
           scrollY: 0, scrollT: 0, isHero: host.id === 'home',
-          tintMats: [mat], shocks: null
+          tintMats: [mat], shocks: null, peiLocal: null
         };
 
-        // --- wireframe globe with PEI marker (hero only) ---
+        // --- textured Earth globe with PEI marker (hero only) ---
         if (S.isHero) {
           var globeGroup = new THREE.Group();
           var gr = isMobile ? 2.2 : 3.2;
           var globeMat = new THREE.MeshBasicMaterial({ color: themeHex(), wireframe: true, transparent: true, opacity: 0.22 });
-          globeGroup.add(new THREE.Mesh(new THREE.SphereGeometry(gr, 28, 20), globeMat));
+          var globeMesh = new THREE.Mesh(new THREE.SphereGeometry(gr, 48, 32), globeMat);
+          globeGroup.add(globeMesh);
+          // swap wireframe for the real Earth map once it loads
+          new THREE.TextureLoader().load(
+            'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/textures/planets/earth_atmos_2048.jpg',
+            function (tex) {
+              tex.colorSpace = THREE.SRGBColorSpace;
+              tex.anisotropy = 4;
+              globeMesh.material = new THREE.MeshBasicMaterial({ map: tex });
+              var ti = S.tintMats.indexOf(globeMat);
+              if (ti > -1) S.tintMats.splice(ti, 1);
+            },
+            undefined,
+            function () { /* texture failed: keep wireframe fallback */ }
+          );
           // PEI: 46.4N, 63.3W
           var phi = (90 - 46.4) * Math.PI / 180, theta = (-63.3 + 180) * Math.PI / 180;
           var mp = new THREE.Vector3(
@@ -162,6 +176,7 @@ document.querySelectorAll('.portfolio-item').forEach(function (card) {
             gr * Math.cos(phi),
             gr * Math.sin(phi) * Math.sin(theta)
           );
+          S.peiLocal = mp;
           var markerMat = new THREE.MeshBasicMaterial({ color: themeHex() });
           var marker = new THREE.Mesh(new THREE.SphereGeometry(0.14, 14, 14), markerMat);
           marker.position.copy(mp);
@@ -171,7 +186,6 @@ document.querySelectorAll('.portfolio-item').forEach(function (card) {
           ring.position.copy(mp);
           ring.lookAt(mp.clone().multiplyScalar(2));
           globeGroup.add(ring);
-          // shockwave pool: expanding rings fired on PEI flare
           var shocks = [];
           for (var sh_i = 0; sh_i < 3; sh_i++) {
             var shMat = new THREE.MeshBasicMaterial({ color: themeHex(), transparent: true, opacity: 0, side: THREE.DoubleSide });
@@ -182,11 +196,31 @@ document.querySelectorAll('.portfolio-item').forEach(function (card) {
             shocks.push({ mesh: shRing, mat: shMat, life: 2 });
             S.tintMats.push(shMat);
           }
+          // floating "PEI" label, fades in while excited
+          var labelCanvas = document.createElement('canvas');
+          labelCanvas.width = 256; labelCanvas.height = 128;
+          var lg = labelCanvas.getContext('2d');
+          lg.textAlign = 'center'; lg.textBaseline = 'middle';
+          lg.shadowColor = 'rgba(0,0,0,0.9)'; lg.shadowBlur = 10;
+          lg.fillStyle = '#ffffff';
+          lg.font = 'bold 52px Arial, sans-serif';
+          lg.fillText('PEI', 128, 44);
+          lg.font = '28px Arial, sans-serif';
+          lg.fillStyle = themeHex();
+          lg.fillText('CANADA', 128, 92);
+          var labelTex = new THREE.CanvasTexture(labelCanvas);
+          labelTex.colorSpace = THREE.SRGBColorSpace;
+          var labelMat = new THREE.SpriteMaterial({ map: labelTex, transparent: true, opacity: 0, depthTest: false });
+          var label = new THREE.Sprite(labelMat);
+          label.scale.set(1.7, 0.85, 1);
+          label.position.copy(mp).multiplyScalar(1.45);
+          globeGroup.add(label);
           globeGroup.position.set(0, 0.4, -2.5);
           scene.add(globeGroup);
           S.globe = globeGroup; S.marker = marker; S.ring = ring;
           S.ringMat = ringMat; S.shocks = shocks;
-          S.tintMats.push(globeMat, markerMat, ringMat);
+          S.labelMat = labelMat;
+          S.tintMats.push(markerMat, ringMat);
           heroScene = S;
         }
 
@@ -231,9 +265,10 @@ document.querySelectorAll('.portfolio-item').forEach(function (card) {
         S.resize();
       });
 
-      // PEI text: hover flares the marker; click jumps to the hero so you see it
+      // PEI text: hover spins the globe to PEI + flares the marker; click jumps to hero
       document.querySelectorAll('.pei-trigger').forEach(function (el) {
-        el.addEventListener('pointerenter', flarePEI);
+        el.addEventListener('pointerenter', function () { peiHover = true; flarePEI(); });
+        el.addEventListener('pointerleave', function () { peiHover = false; });
         el.addEventListener('click', function () {
           var homeSection = document.getElementById('home');
           var homeBtn = document.querySelector('.control[data-id="home"]');
@@ -293,7 +328,15 @@ document.querySelectorAll('.portfolio-item').forEach(function (card) {
           }
           S.posAttr.needsUpdate = true;
           if (S.globe) {
-            S.globe.rotation.y += dt * 0.06;
+            // spin PEI into view while hovered/excited, else slow auto-rotate
+            if ((peiHover || peiExcite > 0.35) && S.peiLocal) {
+              var want = Math.atan2(-S.peiLocal.x, S.peiLocal.z);
+              var cur = S.globe.rotation.y;
+              var delta = ((want - cur + Math.PI * 3) % (Math.PI * 2)) - Math.PI;
+              S.globe.rotation.y = cur + delta * Math.min(1, dt * 2.5);
+            } else {
+              S.globe.rotation.y += dt * 0.06;
+            }
             var pt = now * 0.003;
             var spd = 1.6 + peiExcite * 3.2;
             var amp = 1 + peiExcite * 0.9;
@@ -303,6 +346,8 @@ document.querySelectorAll('.portfolio-item').forEach(function (card) {
             S.ringMat.opacity = Math.max(0.12, 0.6 * puls);
             var ms = 1 + peiExcite * 0.9;
             S.marker.scale.set(ms, ms, ms);
+            var labelTarget = peiExcite > 0.25 ? 0.95 : 0;
+            S.labelMat.opacity += (labelTarget - S.labelMat.opacity) * Math.min(1, dt * 6);
             S.shocks.forEach(function (sh) {
               if (sh.life < 0) { sh.life += dt; return; }
               if (sh.life >= 1) { sh.mat.opacity = 0; return; }
