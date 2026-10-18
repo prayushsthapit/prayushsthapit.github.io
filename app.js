@@ -150,25 +150,48 @@ document.querySelectorAll('.portfolio-item').forEach(function (card) {
           tintMats: [mat], shocks: null, peiLocal: null
         };
 
-        // --- textured Earth globe with real PEI boundary (hero only) ---
+        // --- network globe with real PEI boundary (hero only) ---
         if (S.isHero) {
           var globeGroup = new THREE.Group();
-          var globeMat = new THREE.MeshBasicMaterial({ color: themeHex(), wireframe: true, transparent: true, opacity: 0.25 });
-          var globeMesh = new THREE.Mesh(new THREE.SphereGeometry(1, 48, 32), globeMat);
-          globeGroup.add(globeMesh);
-          // swap wireframe for the real Earth map once it loads
-          new THREE.TextureLoader().load(
-            'https://cdn.jsdelivr.net/gh/mrdoob/three.js@r160/examples/textures/planets/earth_atmos_2048.jpg',
-            function (tex) {
-              tex.colorSpace = THREE.SRGBColorSpace;
-              tex.anisotropy = 4;
-              globeMesh.material = new THREE.MeshBasicMaterial({ map: tex });
-              var ti = S.tintMats.indexOf(globeMat);
-              if (ti > -1) S.tintMats.splice(ti, 1);
-            },
-            undefined,
-            function () { /* texture failed: keep wireframe fallback */ }
-          );
+          var globeMat = new THREE.MeshBasicMaterial({ color: themeHex(), wireframe: true, transparent: true, opacity: 0.35 });
+          globeGroup.add(new THREE.Mesh(new THREE.SphereGeometry(1, 40, 28), globeMat));
+          // network nodes + data arcs travelling across the surface
+          var nodeMat = new THREE.MeshBasicMaterial({ color: themeHex() });
+          var nodeGeo = new THREE.SphereGeometry(0.022, 8, 8);
+          var arcMat = new THREE.LineBasicMaterial({ color: themeHex(), transparent: true, opacity: 0.45 });
+          var pulseMat = new THREE.MeshBasicMaterial({ color: themeHex() });
+          var pulseGeo = new THREE.SphereGeometry(0.02, 8, 8);
+          var nodes = [];
+          var arcs = [];
+          function surfPoint() {
+            var th = Math.random() * Math.PI * 2;
+            var ph = Math.acos(2 * Math.random() - 1);
+            return new THREE.Vector3(Math.sin(ph) * Math.cos(th), Math.cos(ph), Math.sin(ph) * Math.sin(th));
+          }
+          for (var ni = 0; ni < 16; ni++) {
+            var np = surfPoint().multiplyScalar(1.005);
+            nodes.push(np);
+            var nm = new THREE.Mesh(nodeGeo, nodeMat);
+            nm.position.copy(np);
+            globeGroup.add(nm);
+          }
+          var tries = 0;
+          while (arcs.length < 9 && tries < 60) {
+            tries++;
+            var na = nodes[(Math.random() * nodes.length) | 0];
+            var nb = nodes[(Math.random() * nodes.length) | 0];
+            if (na === nb || na.distanceTo(nb) < 0.6) continue;
+            var mid = na.clone().add(nb).multiplyScalar(0.5);
+            if (mid.length() < 0.05) continue;
+            mid.normalize().multiplyScalar(1.38);
+            var curve = new THREE.QuadraticBezierCurve3(na.clone(), mid, nb.clone());
+            globeGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(curve.getPoints(40)), arcMat));
+            var pulse = new THREE.Mesh(pulseGeo, pulseMat);
+            globeGroup.add(pulse);
+            arcs.push({ curve: curve, pulse: pulse, t: Math.random(), speed: 0.22 + Math.random() * 0.3 });
+          }
+          S.netArcs = arcs;
+          S.tintMats.push(globeMat, nodeMat, arcMat, pulseMat);
           // PEI anchor: 46.4N, 63.3W (unit sphere)
           var phi = (90 - 46.4) * Math.PI / 180, theta = (-63.3 + 180) * Math.PI / 180;
           var mp = new THREE.Vector3(
@@ -390,6 +413,14 @@ document.querySelectorAll('.portfolio-item').forEach(function (card) {
             }
             var outlineTarget = (peiHover || peiExcite > 0.3) ? 1 : 0.55;
             S.outlineMat.opacity += (outlineTarget - S.outlineMat.opacity) * Math.min(1, dt * 5);
+            if (S.netArcs) {
+              for (var ai2 = 0; ai2 < S.netArcs.length; ai2++) {
+                var A = S.netArcs[ai2];
+                A.t += dt * A.speed;
+                if (A.t > 1) A.t -= 1;
+                A.pulse.position.copy(A.curve.getPoint(A.t));
+              }
+            }
             var labelTarget = peiExcite > 0.25 ? 0.95 : 0;
             S.labelMat.opacity += (labelTarget - S.labelMat.opacity) * Math.min(1, dt * 6);
             S.shocks.forEach(function (sh) {
