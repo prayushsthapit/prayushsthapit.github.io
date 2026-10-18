@@ -78,7 +78,7 @@
 
 // Make entire portfolio cards clickable (not just the small GitHub icon)
 document.querySelectorAll('.portfolio-item').forEach(function (card) {
-    var link = card.querySelector('.hover-items .icons a');
+    var link = card.querySelector('.portfolio-info .icons a');
     if (!link) return;
     card.style.cursor = 'pointer';
     card.addEventListener('click', function (e) {
