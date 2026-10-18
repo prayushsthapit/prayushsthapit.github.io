@@ -1306,3 +1306,110 @@ header#home > *:not(.fx-canvas) {
   0% { transform: scale(0.92); opacity: 0.9; }
   100% { transform: scale(1.12); opacity: 0; }
 }
+
+/* ---------- PEI info popup ---------- */
+.pei-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0, 0, 0, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.2rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.pei-modal-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+.pei-modal {
+  position: relative;
+  background: var(--color-primary);
+  border: 1px solid var(--color-secondary);
+  border-radius: 14px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  max-width: 540px;
+  width: 100%;
+  max-height: 88vh;
+  overflow-y: auto;
+  padding: 1.8rem;
+  transform: translateY(12px) scale(0.98);
+  transition: transform 0.3s ease;
+}
+.pei-modal-overlay.open .pei-modal {
+  transform: none;
+}
+.pei-modal h3 {
+  font-size: 1.5rem;
+  margin-bottom: 0.3rem;
+  padding-right: 2rem;
+}
+.pei-modal h3 .pin {
+  color: var(--color-secondary);
+}
+.pei-modal-sub {
+  color: var(--color-grey-2);
+  font-size: 0.95rem;
+  margin-bottom: 1.1rem;
+}
+.pei-gallery {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.6rem;
+  margin-bottom: 1.1rem;
+}
+.pei-gallery img {
+  width: 100%;
+  height: 110px;
+  object-fit: cover;
+  border-radius: 8px;
+  display: block;
+}
+.pei-modal ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem;
+}
+.pei-modal ul li {
+  position: relative;
+  padding-left: 1.4rem;
+  margin-bottom: 0.55rem;
+  line-height: 1.45;
+  font-size: 0.98rem;
+}
+.pei-modal ul li::before {
+  content: '\25B8';
+  position: absolute;
+  left: 0;
+  color: var(--color-secondary);
+}
+.pei-modal-close {
+  position: absolute;
+  top: 0.7rem;
+  right: 0.9rem;
+  background: none;
+  border: none;
+  color: var(--color-grey-2);
+  font-size: 1.8rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.pei-modal-close:hover {
+  color: var(--color-secondary);
+}
+.pei-credit {
+  font-size: 0.75rem;
+  color: var(--color-grey-3);
+  text-align: right;
+}
+@media screen and (max-width: 600px) {
+  .pei-gallery img {
+    height: 84px;
+  }
+  .pei-modal {
+    padding: 1.4rem;
+  }
+}
