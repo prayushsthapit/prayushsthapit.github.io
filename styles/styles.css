@@ -1439,7 +1439,8 @@ header#home .fx-canvas {
   }
   .about-container .right-about {
     grid-template-columns: repeat(4, 1fr);
-    padding-top: 2.5rem;
+    padding-top: 3.5rem;
+    padding-bottom: 3.5rem;
     max-width: 1000px;
     width: 100%;
     margin: 0 auto;
