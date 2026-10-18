@@ -204,20 +204,42 @@ document.querySelectorAll('.portfolio-item').forEach(function (card) {
             shocks.push({ mesh: shRing, mat: shMat, life: 2 });
             S.tintMats.push(shMat);
           }
-          // floating "PRINCE EDWARD ISLAND" label, fades in while excited
+          // floating "PRINCE EDWARD ISLAND" label, fades in while excited.
+          // Dark pill backing keeps it readable in dark AND light mode.
           var labelCanvas = document.createElement('canvas');
           labelCanvas.width = 512; labelCanvas.height = 128;
-          var lg = labelCanvas.getContext('2d');
-          lg.textAlign = 'center'; lg.textBaseline = 'middle';
-          lg.shadowColor = 'rgba(0,0,0,0.9)'; lg.shadowBlur = 12;
-          lg.fillStyle = '#ffffff';
-          lg.font = 'bold 36px Arial, sans-serif';
-          lg.fillText('PRINCE EDWARD ISLAND', 256, 46);
-          lg.font = '26px Arial, sans-serif';
-          lg.fillStyle = themeHex();
-          lg.fillText('CANADA', 256, 94);
           var labelTex = new THREE.CanvasTexture(labelCanvas);
           labelTex.colorSpace = THREE.SRGBColorSpace;
+          function drawLabel(accent) {
+            var lg = labelCanvas.getContext('2d');
+            lg.clearRect(0, 0, 512, 128);
+            lg.fillStyle = 'rgba(8,12,18,0.80)';
+            lg.beginPath();
+            var x = 6, y = 6, w = 500, h = 116, r = 26;
+            lg.moveTo(x + r, y);
+            lg.arcTo(x + w, y, x + w, y + h, r);
+            lg.arcTo(x + w, y + h, x, y + h, r);
+            lg.arcTo(x, y + h, x, y, r);
+            lg.arcTo(x, y, x + w, y, r);
+            lg.closePath();
+            lg.fill();
+            lg.strokeStyle = accent;
+            lg.lineWidth = 3;
+            lg.globalAlpha = 0.9;
+            lg.stroke();
+            lg.globalAlpha = 1;
+            lg.textAlign = 'center';
+            lg.textBaseline = 'middle';
+            lg.fillStyle = '#ffffff';
+            lg.font = 'bold 34px Arial, sans-serif';
+            lg.fillText('PRINCE EDWARD ISLAND', 256, 52);
+            lg.font = '24px Arial, sans-serif';
+            lg.fillStyle = accent;
+            lg.fillText('C A N A D A', 256, 96);
+            labelTex.needsUpdate = true;
+          }
+          drawLabel(themeHex());
+          S.redrawLabel = drawLabel;
           var labelMat = new THREE.SpriteMaterial({ map: labelTex, transparent: true, opacity: 0, depthTest: false });
           var label = new THREE.Sprite(labelMat);
           label.scale.set(1.6, 0.4, 1);
@@ -316,6 +338,7 @@ document.querySelectorAll('.portfolio-item').forEach(function (card) {
           var c = themeHex();
           scenes.forEach(function (S) {
             S.tintMats.forEach(function (m) { m.color.set(c); });
+            if (S.redrawLabel) S.redrawLabel(c);
           });
         }, 60);
       });
