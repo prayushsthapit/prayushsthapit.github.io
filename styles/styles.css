@@ -1207,9 +1207,11 @@ button.main-btn {
   display: none;
 }
 
-/* ---------- Project cards: uniform grid layout ---------- */
-.portfolios {
-  grid-auto-rows: 1fr;
+/* ---------- Project cards: uniform grid layout (desktop: equal-height rows) ---------- */
+@media screen and (min-width: 661px) {
+  .portfolios {
+    grid-auto-rows: 1fr;
+  }
 }
 .portfolios .portfolio-item {
   display: flex;
