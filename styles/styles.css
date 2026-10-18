@@ -1418,3 +1418,20 @@ header#home > *:not(.fx-canvas) {
 header#home .fx-canvas {
   opacity: 0.85;
 }
+
+/* ---------- About: text above, stats in one row (desktop landscape) ---------- */
+@media screen and (min-width: 1071px) {
+  .about-container {
+    grid-template-columns: 1fr;
+    max-width: 1150px;
+    margin: 0 auto;
+  }
+  .about-container .left-about p {
+    font-size: 1.15rem;
+    line-height: 1.9;
+  }
+  .about-container .right-about {
+    grid-template-columns: repeat(4, 1fr);
+    padding-top: 2.5rem;
+  }
+}
