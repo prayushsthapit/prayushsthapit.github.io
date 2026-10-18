@@ -265,8 +265,18 @@ document.querySelectorAll('.portfolio-item').forEach(function (card) {
         S.resize();
       });
 
-      // PEI text: hover spins the globe to PEI + flares the marker; click jumps to hero
+      // PEI text triggers: globe (hero) spins to PEI, map (contact) opens Google Maps,
+      // popup (about) is handled by the PEI info module below
       document.querySelectorAll('.pei-trigger').forEach(function (el) {
+        var mode = el.getAttribute('data-pei') || 'globe';
+        if (mode === 'map') {
+          el.addEventListener('pointerenter', flarePEI);
+          el.addEventListener('click', function () {
+            window.open('https://www.google.com/maps/search/?api=1&query=Prince+Edward+Island,+Canada', '_blank', 'noopener');
+          });
+          return;
+        }
+        if (mode === 'popup') return;
         el.addEventListener('pointerenter', function () { peiHover = true; flarePEI(); });
         el.addEventListener('pointerleave', function () { peiHover = false; });
         el.addEventListener('click', function () {
@@ -368,4 +378,50 @@ document.querySelectorAll('.portfolio-item').forEach(function (card) {
       })(last);
     })
     .catch(function () { /* CDN unreachable: site simply stays static */ });
+})();
+
+// PEI info popup (About section trigger)
+(function () {
+  var overlay = document.createElement('div');
+  overlay.className = 'pei-modal-overlay';
+  overlay.innerHTML =
+    '<div class="pei-modal" role="dialog" aria-label="About Prince Edward Island">' +
+      '<button class="pei-modal-close" aria-label="Close">&times;</button>' +
+      '<h3><span class="pin">\uD83D\uDCCC</span> Prince Edward Island</h3>' +
+      '<p class="pei-modal-sub">Canada\u2019s island province \u2014 home</p>' +
+      '<div class="pei-gallery">' +
+        '<img loading="lazy" alt="Confederation Bridge" src="https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a7/Confederation_Bridge%2C_Prince_Edward_Island%2C_Canada.jpg/960px-Confederation_Bridge%2C_Prince_Edward_Island%2C_Canada.jpg">' +
+        '<img loading="lazy" alt="Red sand beach" src="https://thumb.wikimedia.org/wikipedia/commons/thumb/3/30/Red_sand_beach_in_Prince_Edward_Island_-_panoramio.jpg/960px-Red_sand_beach_in_Prince_Edward_Island_-_panoramio.jpg">' +
+        '<img loading="lazy" alt="Charlottetown waterfront" src="https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fe/Charlottetown_Waterfront%2C_Charlottetown_-_panoramio.jpg/960px-Charlottetown_Waterfront%2C_Charlottetown_-_panoramio.jpg">' +
+      '</div>' +
+      '<ul>' +
+        '<li>Canada\u2019s smallest province \u2014 about 5,660 km\u00B2 with roughly 175,000 people.</li>' +
+        '<li>Capital: Charlottetown. Linked to New Brunswick by the 12.9 km Confederation Bridge.</li>' +
+        '<li>Famous for red-sand beaches, potatoes, and as the home of <em>Anne of Green Gables</em>.</li>' +
+      '</ul>' +
+      '<p class="pei-credit">Photos: Wikimedia Commons</p>' +
+    '</div>';
+  document.body.appendChild(overlay);
+
+  function open() { overlay.classList.add('open'); }
+  function close() { overlay.classList.remove('open'); }
+
+  overlay.addEventListener('click', function (e) {
+    if (e.target === overlay || e.target.closest('.pei-modal-close')) close();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') close();
+  });
+
+  var t;
+  document.querySelectorAll('.pei-trigger[data-pei="popup"]').forEach(function (el) {
+    el.addEventListener('pointerenter', function () {
+      clearTimeout(t);
+      t = setTimeout(open, 350);
+    });
+    el.addEventListener('click', function () {
+      clearTimeout(t);
+      open();
+    });
+  });
 })();
