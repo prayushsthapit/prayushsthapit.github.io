@@ -497,3 +497,109 @@ document.querySelectorAll('.portfolio-item').forEach(function (card) {
     });
   });
 })();
+
+/* ---------- Stat detail popups (About boxes) ---------- */
+(function () {
+  var DETAILS = {
+    experience: {
+      num: "2+",
+      eyebrow: "Professional experience",
+      title: "2+ Years of Experience",
+      body: "Two years as a Technical Assistant at SmartChoice Technologies \u2014 hands-on IT support: diagnosing issues, helping users, and keeping systems running.",
+      items: [
+        "Technical troubleshooting & diagnostics",
+        "Supporting end users with hardware & software issues",
+        "Solving problems under real-world pressure"
+      ]
+    },
+    projects: {
+      num: "7",
+      eyebrow: "Hands-on projects",
+      title: "7 Projects Built & Planned",
+      body: "One shipped iOS app plus a set of structured lab roadmaps I\u2019m building through \u2014 every project practices real IT, networking, cloud, or security skills.",
+      items: [
+        "QuizMe \u2014 iOS quiz app built with Swift",
+        "IT Support Home Lab \u2014 virtualization, Active Directory, ticketing",
+        "Python Automation for IT \u2014 scripting everyday admin tasks",
+        "Home Network Build \u2014 VLANs, Pi-hole, monitoring",
+        "AWS Cloud Labs \u2014 EC2, S3, IAM fundamentals",
+        "SOC Home Lab \u2014 SIEM, log analysis, incident response",
+        "This portfolio website \u2014 designed & built by hand"
+      ]
+    },
+    education: {
+      num: "3",
+      eyebrow: "Education & certifications",
+      title: "3 Degrees & Certifications",
+      body: "Formal education plus an industry certification \u2014 the foundation everything else is built on.",
+      items: [
+        "Bachelor\u2019s degree in Information Technology",
+        "Graduate Certificate in Mobile Application Development",
+        "CompTIA A+ Certified"
+      ]
+    },
+    cert: {
+      num: "1",
+      eyebrow: "Currently pursuing",
+      title: "1 Certification in Progress",
+      body: "Currently working toward CompTIA Network+ \u2014 deepening networking fundamentals on the path toward cloud security engineering.",
+      items: [
+        "CompTIA Network+ \u2014 in progress",
+        "CompTIA Security+ \u2014 planned next"
+      ]
+    }
+  };
+
+  var overlay = document.createElement("div");
+  overlay.className = "stat-modal-overlay";
+  overlay.innerHTML =
+    "<div class=\"stat-modal\" role=\"dialog\" aria-modal=\"true\">" +
+      "<button class=\"stat-modal-close\" aria-label=\"Close\">\u00d7</button>" +
+      "<div class=\"stat-modal-num\"></div>" +
+      "<div class=\"stat-modal-eyebrow\"></div>" +
+      "<h3></h3>" +
+      "<p class=\"stat-modal-body\"></p>" +
+      "<ul></ul>" +
+    "</div>";
+  document.body.appendChild(overlay);
+
+  var numEl = overlay.querySelector(".stat-modal-num");
+  var eyeEl = overlay.querySelector(".stat-modal-eyebrow");
+  var titleEl = overlay.querySelector("h3");
+  var bodyEl = overlay.querySelector(".stat-modal-body");
+  var listEl = overlay.querySelector("ul");
+
+  function open(key) {
+    var d = DETAILS[key];
+    if (!d) return;
+    numEl.textContent = d.num;
+    eyeEl.textContent = d.eyebrow;
+    titleEl.textContent = d.title;
+    bodyEl.textContent = d.body;
+    listEl.innerHTML = "";
+    d.items.forEach(function (t) {
+      var li = document.createElement("li");
+      li.textContent = t;
+      listEl.appendChild(li);
+    });
+    overlay.classList.add("open");
+  }
+  function close() { overlay.classList.remove("open"); }
+
+  overlay.addEventListener("click", function (e) {
+    if (e.target === overlay || e.target.closest(".stat-modal-close")) close();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") close();
+  });
+
+  document.querySelectorAll(".about-item[data-stat]").forEach(function (box) {
+    box.style.cursor = "pointer";
+    box.setAttribute("role", "button");
+    box.setAttribute("tabindex", "0");
+    box.addEventListener("click", function () { open(box.getAttribute("data-stat")); });
+    box.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(box.getAttribute("data-stat")); }
+    });
+  });
+})();
