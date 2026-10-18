@@ -87,13 +87,14 @@ document.querySelectorAll('.portfolio-item').forEach(function (card) {
     });
 });
 
-// Three.js 3D particle fields on every section + click bursts
+// Three.js: particle fields + wireframe globe with PEI marker + scroll cameras
 (function () {
   if (!window.WebGLRenderingContext) return;
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   var canvases = document.querySelectorAll('.fx-canvas');
   if (!canvases.length) return;
   var isMobile = window.innerWidth < 700;
+  var peiExcite = 0;
 
   function themeHex() {
     var c = getComputedStyle(document.body).getPropertyValue('--color-secondary').trim();
@@ -135,8 +136,39 @@ document.querySelectorAll('.portfolio-item').forEach(function (card) {
           host: host, renderer: renderer, scene: scene, camera: camera,
           points: points, mat: mat, posAttr: posAttr,
           positions: positions, vels: vels, COUNT: COUNT,
-          visible: false, mx: 0, my: 0, tx: 0, ty: 0
+          visible: false, mx: 0, my: 0, tx: 0, ty: 0,
+          scrollY: 0, scrollT: 0, isHero: host.id === 'home',
+          tintMats: [mat]
         };
+
+        // --- wireframe globe with PEI marker (hero only) ---
+        if (S.isHero) {
+          var globeGroup = new THREE.Group();
+          var gr = isMobile ? 2.2 : 3.2;
+          var globeMat = new THREE.MeshBasicMaterial({ color: themeHex(), wireframe: true, transparent: true, opacity: 0.15 });
+          globeGroup.add(new THREE.Mesh(new THREE.SphereGeometry(gr, 28, 20), globeMat));
+          // PEI: 46.4N, 63.3W
+          var phi = (90 - 46.4) * Math.PI / 180, theta = (-63.3 + 180) * Math.PI / 180;
+          var mp = new THREE.Vector3(
+            -gr * Math.sin(phi) * Math.cos(theta),
+            gr * Math.cos(phi),
+            gr * Math.sin(phi) * Math.sin(theta)
+          );
+          var markerMat = new THREE.MeshBasicMaterial({ color: themeHex() });
+          var marker = new THREE.Mesh(new THREE.SphereGeometry(0.1, 12, 12), markerMat);
+          marker.position.copy(mp);
+          globeGroup.add(marker);
+          var ringMat = new THREE.MeshBasicMaterial({ color: themeHex(), transparent: true, opacity: 0.55, side: THREE.DoubleSide });
+          var ring = new THREE.Mesh(new THREE.RingGeometry(0.14, 0.18, 32), ringMat);
+          ring.position.copy(mp);
+          ring.lookAt(mp.clone().multiplyScalar(2));
+          globeGroup.add(ring);
+          globeGroup.position.set(0, 0.4, -2.5);
+          scene.add(globeGroup);
+          S.globe = globeGroup; S.marker = marker; S.ring = ring;
+          S.ringMat = ringMat; S.markerMat = markerMat;
+          S.tintMats.push(globeMat, markerMat, ringMat);
+        }
 
         host.addEventListener('mousemove', function (e) {
           var r = canvas.getBoundingClientRect();
@@ -145,7 +177,6 @@ document.querySelectorAll('.portfolio-item').forEach(function (card) {
         });
         host.addEventListener('mouseleave', function () { S.tx = 0; S.ty = 0; });
 
-        // click/tap burst: fling nearby particles outward
         host.addEventListener('pointerdown', function (e) {
           var r = canvas.getBoundingClientRect();
           var wx = ((e.clientX - r.left) / r.width - 0.5) * 24;
@@ -180,20 +211,37 @@ document.querySelectorAll('.portfolio-item').forEach(function (card) {
         S.resize();
       });
 
+      // PEI text triggers flare the globe marker
+      document.querySelectorAll('.pei-trigger').forEach(function (el) {
+        el.addEventListener('pointerenter', function () { peiExcite = 1; });
+        el.addEventListener('click', function () { peiExcite = 1; });
+      });
+
       var themeBtn = document.querySelector('.theme-btn');
       if (themeBtn) themeBtn.addEventListener('click', function () {
         setTimeout(function () {
           var c = themeHex();
-          scenes.forEach(function (S) { S.mat.color.set(c); });
+          scenes.forEach(function (S) {
+            S.tintMats.forEach(function (m) { m.color.set(c); });
+          });
         }, 60);
       });
+
+      function onScroll() {
+        var vh = window.innerHeight;
+        scenes.forEach(function (S) {
+          var r = S.host.getBoundingClientRect();
+          var prog = (r.top + r.height / 2 - vh / 2) / vh;
+          S.scrollT = Math.max(-1, Math.min(1, prog));
+        });
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
 
       var rt;
       window.addEventListener('resize', function () {
         clearTimeout(rt);
-        rt = setTimeout(function () {
-          scenes.forEach(function (S) { S.resize(); });
-        }, 200);
+        rt = setTimeout(function () { scenes.forEach(function (S) { S.resize(); }); }, 200);
       });
 
       var last = performance.now();
@@ -201,6 +249,7 @@ document.querySelectorAll('.portfolio-item').forEach(function (card) {
         requestAnimationFrame(loop);
         var dt = Math.min((now - last) / 1000, 0.05);
         last = now;
+        peiExcite = Math.max(0, peiExcite - dt * 0.45);
         for (var s = 0; s < scenes.length; s++) {
           var S = scenes[s];
           if (!S.visible) continue;
@@ -213,10 +262,23 @@ document.querySelectorAll('.portfolio-item').forEach(function (card) {
             S.positions[k * 3 + 2] += S.vels[k * 3 + 2] * dt * 8;
           }
           S.posAttr.needsUpdate = true;
+          if (S.globe) {
+            S.globe.rotation.y += dt * 0.06;
+            var pt = now * 0.003;
+            var spd = 1.6 + peiExcite * 3.2;
+            var amp = 1 + peiExcite * 0.9;
+            var puls = Math.abs(Math.sin(pt * spd));
+            var rs = (1 + 0.45 * puls) * amp;
+            S.ring.scale.set(rs, rs, 1);
+            S.ringMat.opacity = Math.max(0.12, 0.6 * puls);
+            var ms = 1 + peiExcite * 0.9;
+            S.marker.scale.set(ms, ms, ms);
+          }
           S.mx += (S.tx - S.mx) * 0.05;
           S.my += (S.ty - S.my) * 0.05;
+          S.scrollY += (S.scrollT - S.scrollY) * 0.06;
           S.camera.position.x = S.mx * 2;
-          S.camera.position.y = -S.my * 1.4;
+          S.camera.position.y = -S.my * 1.4 + S.scrollY * 2.1;
           S.camera.lookAt(S.scene.position);
           S.renderer.render(S.scene, S.camera);
         }
