@@ -1436,6 +1436,8 @@ header#home .fx-canvas {
   .about-container .right-about {
     grid-template-columns: repeat(4, 1fr);
     padding-top: 2.5rem;
+    padding-left: 3rem;
+    padding-right: 3rem;
   }
 }
 
