@@ -150,8 +150,8 @@ document.querySelectorAll('.portfolio-item').forEach(function (card) {
           tintMats: [mat], shocks: null, peiLocal: null
         };
 
-        // --- network globe with real PEI boundary (hero only) ---
-        if (S.isHero) {
+        // --- network globe with real PEI boundary (hero only, desktop) ---
+        if (S.isHero && !isMobile) {
           var globeGroup = new THREE.Group();
           var globeMat = new THREE.MeshBasicMaterial({ color: themeHex(), wireframe: true, transparent: true, opacity: 0.5 });
           globeGroup.add(new THREE.Mesh(new THREE.SphereGeometry(1, 40, 28), globeMat));
@@ -278,18 +278,9 @@ document.querySelectorAll('.portfolio-item').forEach(function (card) {
             var dist = 9 - (-3);
             var halfH = Math.tan(camera.fov * Math.PI / 360) * dist;
             var halfW = halfH * camera.aspect;
-            var r, px, py;
-            if (isMobile) {
-              // mobile: backdrop behind the headline text (upper area)
-              r = Math.min(2.0, halfH * 0.40, halfW * 0.48);
-              px = 0; py = halfH * 0.30;
-            } else {
-              // desktop: bigger and raised a little
-              r = Math.min(3.4, halfH * 0.50, halfW * 0.50);
-              px = 0; py = -halfH * 0.20;
-            }
+            var r = Math.min(3.4, halfH * 0.50, halfW * 0.50);
             globeGroup.scale.setScalar(r);
-            globeGroup.position.set(px, py, -3);
+            globeGroup.position.set(0, -halfH * 0.20, -3);
           };
           S.placeGlobe();
           heroScene = S;
